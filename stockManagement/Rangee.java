@@ -94,4 +94,14 @@ public class Rangee {
         return null;
     }
 
+	public int getAvailableVolByType(String lotType) {
+        int vol = 0;
+        for (Lot lot : lots) {
+            if (lot.getNomPieces().equals(lotType)) {
+                vol+=lot.getVolume();
+            }
+        }
+        return vol;
+	}
+
 }
