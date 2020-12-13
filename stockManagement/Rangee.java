@@ -94,14 +94,43 @@ public class Rangee {
         return null;
     }
 
-	public int getAvailableVolByType(String lotType) {
+    public int getAvailableVolByType(String lotType) {
         int vol = 0;
         for (Lot lot : lots) {
             if (lot.getNomPieces().equals(lotType)) {
-                vol+=lot.getVolume();
+                vol += lot.getVolume();
             }
         }
         return vol;
-	}
+    }
 
+    public int consumeLot(String typeLot, int initialVol) {
+        for (Lot lot : lots) {
+            if (lot.getNomPieces().equals(typeLot)) {
+                if (lot.getVolume() == initialVol) {
+                    lots.remove(lot);
+                    return initialVol;
+                } else if (lot.getVolume() > initialVol) {
+                    lot.setVolume(lot.getVolume() - initialVol);
+                    return initialVol;
+                } else {
+                    int vol = lot.getVolume();
+                    lots.remove(lot);
+                    return initialVol - vol;
+                }
+            }
+        }
+        return 0;
+    }
+
+    public boolean isFree(int volume) {
+        if ((Entrepot.longueur - this.lots.size()) >= volume) {
+            return true;
+        }
+        return false;
+    }
+
+    public int getFreeSpace() {
+        return Entrepot.longueur - getCurrentSize();
+    }
 }

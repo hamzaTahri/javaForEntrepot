@@ -2,7 +2,7 @@ package humanResources;
 
 public class Ouvrier extends Personnel {
     private String specialite;
-    private float salaire;
+    public static float salaire;
 
     public String getSpecialite() {
         return specialite;
@@ -12,23 +12,19 @@ public class Ouvrier extends Personnel {
         this.specialite = specialite;
     }
 
-    public float getSalaire() {
-        return salaire;
-    }
-
-    public void setSalaire(float salaire) {
-        this.salaire = salaire;
-    }
-
     public Ouvrier(String nom, String prenom) {
         super(nom, prenom);
-        this.salaire = 5;
     }
 
     public Ouvrier(String nom, String prenom, String specialite, float salaire) {
         super(nom, prenom);
         this.specialite = specialite;
-        this.salaire = salaire;
+        Ouvrier.salaire = salaire;
+    }
+
+    public Ouvrier(String nom, String prenom, String specialite) {
+        super(nom, prenom);
+        this.specialite = specialite;
     }
 
     @Override
