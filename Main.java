@@ -1,9 +1,8 @@
-import java.io.IOException;
-
 import humanResources.ChefBrico;
 import humanResources.ChefStock;
 import humanResources.Ouvrier;
 import stockManagement.Entrepot;
+import stockManagement.Rangee;
 
 public class Main {
 
@@ -18,18 +17,32 @@ public class Main {
 	public static final String ANSI_WHITE = "\u001B[37m";
 
 	public static void main(String[] args) {
-		// Ouvrier o1 = new Ouvrier("Ouvrier 1", "-1", "specialite 1");
-		// Ouvrier o2 = new Ouvrier("Ouvrier 2", "-2", "specialite 2");
-		// Ouvrier o3 = new Ouvrier("Ouvrier 3", "-3", "specialite 3");
+		Ouvrier o1 = new Ouvrier("Ouvrier 1", "-1", "specialite 1");
+		Ouvrier o2 = new Ouvrier("Ouvrier 2", "-2", "specialite 2");
+		Ouvrier o3 = new Ouvrier("Ouvrier 3", "-3", "specialite 3");
 
-		// ChefStock chefS1 = new ChefStock("ChefStrock-1", "-1");
+		ChefStock chefS1 = new ChefStock("ChefStrock-1", "-1");
 
-		// ChefBrico chefB1 = new ChefBrico("ChefBrico-1", "-1");
-		// ChefBrico chefB2 = new ChefBrico("ChefBrico-2", "-2");
+		ChefBrico chefB1 = new ChefBrico("ChefBrico-1", "-1");
+		ChefBrico chefB2 = new ChefBrico("ChefBrico-2", "-2");
 
 		// System.out.println(o1.toString());
 		// System.out.println(o2.toString());
 		// System.out.println(o3.toString());
+
+		Entrepot.longueur = 5;
+		Rangee r1 = new Rangee();
+		Rangee r2 = new Rangee();
+
+		Entrepot.rangees.add(r1);
+		Entrepot.rangees.add(r2);
+
+		Entrepot.personnels.add(o1);
+		Entrepot.personnels.add(o2);
+		Entrepot.personnels.add(o3);
+		Entrepot.personnels.add(chefS1);
+		Entrepot.personnels.add(chefB1);
+		Entrepot.personnels.add(chefB2);
 
 		System.out.println(ANSI_BLUE + "Votre System de gestion d'entrepot est Active" + ANSI_RESET);
 		System.out.println(ANSI_CYAN + "/*******************************************/" + ANSI_RESET);
@@ -78,6 +91,9 @@ public class Main {
 				switch (commandeStrings[1].toLowerCase()) {
 					case "lot":
 						Entrepot.traiterNouveauLot(commandeStrings);
+						break;
+					case "state":
+						Entrepot.showState();
 						break;
 					case "meuble":
 						Entrepot.ConstructionNouvelleCommande(commandeStrings);

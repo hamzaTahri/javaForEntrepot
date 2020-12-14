@@ -16,7 +16,7 @@ import humanResources.Personnel;
 
 public class Entrepot {
 
-    public static int longueur = 10;
+    public static int longueur = 5;
     public static int largeur = 1;
     public static int hauteur = 1;
     public static double tresorie = 10000;
@@ -181,6 +181,7 @@ public class Entrepot {
             if (getTotalFreeSpace() < volume || !isAvailableEmployees()) {
                 System.out.println(
                         "\u001B[33m" + "Espace Insuffisant ou pas d'employes inactive attendez SVP" + "\u001B[0m");
+                return;
             } else {
                 List<Personnel> employeList = getEmployeesForVol(volume);
                 payerPersonnels(employeList, volume);
@@ -193,13 +194,13 @@ public class Entrepot {
                 } else {
                     distributedStorage(volume, nom, poids, prix);
                     freeUpEmployees(employeList);
-                    System.out.println("\u001B[31m" + "\u001B[32m" + "Lot distributed and Added Successfully " + "\u001B[0m");
+                    System.out.println(
+                            "\u001B[31m" + "\u001B[32m" + "Lot distributed and Added Successfully " + "\u001B[0m");
                     return;
                 }
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
             System.out.println("\u001B[31m" + "Commande MissFormed Must be : <id> lot <nom> <poids> <prix> <volume>"
                     + "\u001B[0m");
         }
@@ -216,13 +217,20 @@ public class Entrepot {
 
         for (Integer rvol : freeSpaces.keySet()) {
             if (currentVol == 0) {
+                System.out.println("Volume Get to be 0");
                 return;
             } else {
                 if ((currentVol - rvol) > 0) {
-                    freeSpaces.get(rvol).ajouterLot(new Lot(rvol, nom, poids, prix));
-                } else {
-                    freeSpaces.get(currentVol).ajouterLot(new Lot(rvol, nom, poids, prix));
+                    System.out.println("Ajout de " + rvol);
+                    Rangee r = freeSpaces.get(rvol);
+                    r.ajouterLot(new Lot(rvol, nom, poids, prix));
                     return;
+
+                } else {
+                    System.out.println("Ajout de " + rvol);
+                    Rangee r = freeSpaces.get(rvol);
+                    r.ajouterLot(new Lot(rvol, nom, poids, prix));
+                    currentVol -= rvol;
                 }
             }
         }
@@ -327,6 +335,7 @@ public class Entrepot {
     public static Rangee checkFreeSpaceInOneR(int vol) {
         for (Rangee rangee : rangees) {
             if (rangee.isFree(vol)) {
+                System.out.println(" I will return Range nb " + rangee.getId());
                 return rangee;
             }
         }
@@ -334,6 +343,15 @@ public class Entrepot {
     }
 
     public static void ConstructionNouvelleCommande(String[] commandeStrings) {
+    }
+
+    public static void showState() {
+        for (Rangee range : rangees) {
+            System.out.println("* " + range.toString());
+            for (Lot lot : range.getLots()) {
+                System.out.println("  ------> " + lot.toString());
+            }
+        }
     }
 
 }

@@ -116,4 +116,10 @@ public class Lot {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "Lot [id=" + id + ", nomPieces=" + nomPieces + ", poidsPieces=" + poidsPieces + ", prixPieces="
+                + prixPieces + ", volume=" + volume + "]";
+    }
+
 }

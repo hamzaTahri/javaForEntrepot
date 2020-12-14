@@ -48,12 +48,12 @@ public class Rangee {
 
     @Override
     public String toString() {
-        return "Rangee [id=" + id + ", lots=" + lots + "]";
+        return "Rangee [id=" + id + ", nbLots = " + lots.size() + "]";
     }
 
     // My Methods
     public int ajouterLot(Lot l) {
-        if ((Entrepot.longueur - getCurrentSize()) > l.getVolume()) {
+        if ((Entrepot.longueur - getCurrentSize()) >= l.getVolume()) {
             this.lots.add(l);
             return 1;
         }
@@ -124,7 +124,7 @@ public class Rangee {
     }
 
     public boolean isFree(int volume) {
-        if ((Entrepot.longueur - this.lots.size()) >= volume) {
+        if ((Entrepot.longueur - getCurrentSize()) >= volume) {
             return true;
         }
         return false;
