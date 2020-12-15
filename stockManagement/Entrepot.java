@@ -184,20 +184,20 @@ public class Entrepot {
                 return;
             } else {
                 List<Personnel> employeList = getEmployeesForVol(volume);
-                payerPersonnels(employeList, volume);
                 Rangee r = checkFreeSpaceInOneR(volume);
                 if (r != null) {
                     r.ajouterLot(new Lot(volume, nom, poids, prix));
                     freeUpEmployees(employeList);
                     System.out.println("\u001B[31m" + "\u001B[32m" + "Lot Added Successfully " + "\u001B[0m");
-                    return;
                 } else {
                     distributedStorage(volume, nom, poids, prix);
                     freeUpEmployees(employeList);
                     System.out.println(
                             "\u001B[31m" + "\u001B[32m" + "Lot distributed and Added Successfully " + "\u001B[0m");
-                    return;
+
                 }
+                payerPersonnels(employeList, volume);
+
             }
 
         } catch (Exception e) {
@@ -259,15 +259,20 @@ public class Entrepot {
     }
 
     private static void payerPersonnels(List<Personnel> employeList, int volume) {
+        int payChef = 0, payOuvrier = 0, nbChefs = 0, nbOuvriers = 0;
+
         if (employeList.size() == volume) {
             for (Personnel personnel : employeList) {
-                personnel.setActive(true);
                 if (personnel instanceof Ouvrier) {
+                    nbOuvriers++;
+                    payOuvrier += (float) Ouvrier.salaire;
                     personnel.setBalance(personnel.getBalance() + Ouvrier.salaire);
-                    Entrepot.tresorie -= Ouvrier.salaire;
+                    Entrepot.tresorie -= (float) Ouvrier.salaire;
                 } else {
+                    nbChefs++;
+                    payChef += ChefEquipe.salaire;
                     personnel.setBalance(personnel.getBalance() + ChefEquipe.salaire);
-                    Entrepot.tresorie -= ChefEquipe.salaire;
+                    Entrepot.tresorie -= (float) ChefEquipe.salaire;
                 }
             }
         } else {
@@ -275,22 +280,37 @@ public class Entrepot {
             for (Personnel personnel : employeList) {
                 personnel.setActive(true);
                 if (personnel instanceof Ouvrier) {
+                    nbOuvriers++;
+                    payOuvrier += (float) Ouvrier.salaire * bal;
                     personnel.setBalance(personnel.getBalance() + Ouvrier.salaire * bal);
-                    Entrepot.tresorie -= Ouvrier.salaire;
+                    Entrepot.tresorie -= (float) Ouvrier.salaire;
                 } else {
+                    nbChefs++;
+                    payChef += (float) ChefEquipe.salaire * bal;
                     personnel.setBalance(personnel.getBalance() + ChefEquipe.salaire * bal);
-                    Entrepot.tresorie -= ChefEquipe.salaire;
+                    Entrepot.tresorie -= (float) ChefEquipe.salaire;
                 }
 
             }
             Personnel lastP = employeList.get(employeList.size() - 1);
             if (lastP instanceof Ouvrier) {
+                nbOuvriers++;
+                payOuvrier += (float) Ouvrier.salaire * (volume % employeList.size());
                 lastP.setBalance(lastP.getBalance() + Ouvrier.salaire * (volume % employeList.size()));
-                return;
+                Entrepot.tresorie -= (float) Ouvrier.salaire;
+            } else {
+                nbChefs++;
+                payChef += (float) ChefEquipe.salaire * (volume % employeList.size());
+                lastP.setBalance(lastP.getBalance() + ChefEquipe.salaire * (volume % employeList.size()));
+                Entrepot.tresorie -= (float) ChefEquipe.salaire;
             }
-            lastP.setBalance(lastP.getBalance() + ChefEquipe.salaire * (volume % employeList.size()));
-            return;
+
         }
+        System.out.println("\u001B[35m" + "This Commande takes " + volume + " Step to realize");
+        System.out.println("-------We Have paied " + payOuvrier + " To " + nbOuvriers + " Ouvriers");
+        System.out.println("-------------------- and " + payChef + " To " + nbChefs + " Chef" + "\u001B[0m");
+        System.out.println("\u001B[31m" + "We Still Have " + Entrepot.tresorie + " MAD" + "\u001B[0m");
+
     }
 
     private static List<Personnel> getEmployeesForVol(int volume) {
@@ -343,6 +363,57 @@ public class Entrepot {
     }
 
     public static void ConstructionNouvelleCommande(String[] commandeStrings) {
+        try {
+            String nom = commandeStrings[2];
+            String pieceMaison = commandeStrings[3];
+            int dureeConstruction = Integer.parseInt(commandeStrings[4]);
+            Map<String, Integer> typeLotAndSize = new HashMap<>();
+            String typeLot = "";
+            int sizeLot = 0;
+
+            /**
+             * We Are Creating a map Of lot's types and required Sizes
+             */
+            for (int i = 5; i < commandeStrings.length; i++) {
+                if (i % 2 == 0) {
+                    sizeLot = Integer.parseInt(commandeStrings[i]);
+                } else {
+                    typeLot = commandeStrings[i];
+                }
+                typeLotAndSize.put(typeLot, sizeLot);
+            }
+
+            /**
+             * This Loop checkes existance Of lot
+             */
+            for (String nomLot : typeLotAndSize.keySet()) {
+                if (!testerExistanceLot(nomLot, typeLotAndSize.get(nomLot))) {
+                    throw new Exception("Lot Not Found");
+                }
+            }
+            /**
+             * Since You Get to this Point so the Loop Ends Without throwing the exception
+             * means All Lots are there
+             */
+
+            // Now We Will Check Existance Of Employee
+
+        } catch (Exception e) {
+            System.out.println("\u001B[31m"
+                    + "Commande Miss Formed It Must be <id(Int)> Meuble <nom(String)> <Piece(String)> <duree(Int)><typeLot(String)><volumeLot(Int)>"
+                    + "\u001B[0m");
+            e.printStackTrace();
+        }
+
+    }
+
+    private static boolean testerExistanceLot(String nomLot, Integer volumeRequis) {
+        for (Rangee rangee : rangees) {
+            if (rangee.getAvailableVolByType(nomLot) >= volumeRequis) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void showState() {

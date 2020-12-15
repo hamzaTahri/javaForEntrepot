@@ -2,7 +2,7 @@ package humanResources;
 
 public class Ouvrier extends Personnel {
     private String specialite;
-    public static float salaire;
+    public static float salaire = 5;
 
     public String getSpecialite() {
         return specialite;
