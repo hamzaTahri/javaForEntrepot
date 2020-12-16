@@ -83,6 +83,8 @@ public class Main {
 	private static void traitementParCommande() {
 		System.out.println(ANSI_GREEN + "Votre Choix est Commande" + ANSI_RESET);
 		while (true) {
+			System.out
+					.println(ANSI_GREEN + "Choices You Have <lot> | <state> | <meuble> | <hr> | <rien> " + ANSI_RESET);
 			System.out.print("Tappez la Commande : ");
 			String commande = System.console().readLine();
 			String[] commandeStrings = commande.split(" ");
@@ -97,6 +99,9 @@ public class Main {
 						break;
 					case "meuble":
 						Entrepot.ConstructionNouvelleCommande(commandeStrings);
+						break;
+					case "hr":
+						Entrepot.hrCommande();
 						break;
 					case "rien":
 						break;

@@ -11,10 +11,22 @@ import java.util.TreeMap;
 import humanResources.ChefBrico;
 import humanResources.ChefEquipe;
 import humanResources.ChefStock;
+import humanResources.HRManager;
 import humanResources.Ouvrier;
 import humanResources.Personnel;
 
 public class Entrepot {
+
+    // Colors--------------------------------------------
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_PURPLE = "\u001B[35m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+    public static final String ANSI_WHITE = "\u001B[37m";
 
     public static int longueur = 5;
     public static int largeur = 1;
@@ -22,6 +34,7 @@ public class Entrepot {
     public static double tresorie = 10000;
     public static List<Rangee> rangees = new ArrayList<>();
     public static List<Personnel> personnels = new ArrayList<>();
+    public static List<Meuble> meubles = new ArrayList<>();
 
     public Lot getInventaire() {
         int rand = new Random().nextInt((rangees.size() - 1));
@@ -188,15 +201,17 @@ public class Entrepot {
                 if (r != null) {
                     r.ajouterLot(new Lot(volume, nom, poids, prix));
                     freeUpEmployees(employeList);
-                    System.out.println("\u001B[31m" + "\u001B[32m" + "Lot Added Successfully " + "\u001B[0m");
+                    showLotEffect(volume);
+                    payerPersonnels(employeList, volume);
                 } else {
-                    distributedStorage(volume, nom, poids, prix);
-                    freeUpEmployees(employeList);
-                    System.out.println(
-                            "\u001B[31m" + "\u001B[32m" + "Lot distributed and Added Successfully " + "\u001B[0m");
-
+                    if (checkOtherOption(volume, nom, poids, prix)) {
+                        freeUpEmployees(employeList);
+                        showLotEffect(volume);
+                        payerPersonnels(employeList, volume);
+                        return;
+                    }
+                    System.out.println(ANSI_YELLOW + "Espace Insuffisant  " + ANSI_RESET);
                 }
-                payerPersonnels(employeList, volume);
 
             }
 
@@ -207,34 +222,59 @@ public class Entrepot {
 
     }
 
-    private static void distributedStorage(int volume, String nom, int poids, float prix) {
-        Map<Integer, Rangee> freeSpaces = new TreeMap<>();
+    private static boolean checkOtherOption(int volume, String nom, int poids, float prix) {
+
         for (Rangee rangee : rangees) {
-            freeSpaces.put(rangee.getFreeSpace(), rangee);
-        }
-
-        int currentVol = volume;
-
-        for (Integer rvol : freeSpaces.keySet()) {
-            if (currentVol == 0) {
-                System.out.println("Volume Get to be 0");
-                return;
-            } else {
-                if ((currentVol - rvol) > 0) {
-                    System.out.println("Ajout de " + rvol);
-                    Rangee r = freeSpaces.get(rvol);
-                    r.ajouterLot(new Lot(rvol, nom, poids, prix));
-                    return;
-
-                } else {
-                    System.out.println("Ajout de " + rvol);
-                    Rangee r = freeSpaces.get(rvol);
-                    r.ajouterLot(new Lot(rvol, nom, poids, prix));
-                    currentVol -= rvol;
+            for (Lot lot : rangee.getLots()) {
+                if ((rangee.getCurrentSize() - lot.getVolume()) >= volume) {
+                    for (Rangee rx : rangees) {
+                        if ((rx.getCurrentSize() + lot.getVolume()) < Entrepot.longueur) {
+                            rx.ajouterLot(lot);
+                            rangee.supprimerLot(lot);
+                            rangee.ajouterLot(new Lot(volume, nom, poids, prix));
+                            return true;
+                        }
+                    }
                 }
             }
         }
+
+        return false;
     }
+
+    /**
+     * Not Allowed in project description
+     */
+
+    // private static void distributedStorage(int volume, String nom, int poids,
+    // float prix) {
+    // Map<Integer, Rangee> freeSpaces = new TreeMap<>();
+    // for (Rangee rangee : rangees) {
+    // freeSpaces.put(rangee.getFreeSpace(), rangee);
+    // }
+
+    // int currentVol = volume;
+
+    // for (Integer rvol : freeSpaces.keySet()) {
+    // if (currentVol == 0) {
+    // System.out.println("Volume Get to be 0");
+    // return;
+    // } else {
+    // if ((currentVol - rvol) > 0) {
+    // System.out.println("Ajout de " + rvol);
+    // Rangee r = freeSpaces.get(rvol);
+    // r.ajouterLot(new Lot(rvol, nom, poids, prix));
+    // return;
+
+    // } else {
+    // System.out.println("Ajout de " + rvol);
+    // Rangee r = freeSpaces.get(rvol);
+    // r.ajouterLot(new Lot(rvol, nom, poids, prix));
+    // currentVol -= rvol;
+    // }
+    // }
+    // }
+    // }
 
     public static <K, V extends Comparable<V>> Map<K, V> sortByValues(final Map<K, V> map) {
         Comparator<K> valueComparator = new Comparator<K>() {
@@ -355,7 +395,6 @@ public class Entrepot {
     public static Rangee checkFreeSpaceInOneR(int vol) {
         for (Rangee rangee : rangees) {
             if (rangee.isFree(vol)) {
-                System.out.println(" I will return Range nb " + rangee.getId());
                 return rangee;
             }
         }
@@ -370,6 +409,8 @@ public class Entrepot {
             Map<String, Integer> typeLotAndSize = new HashMap<>();
             String typeLot = "";
             int sizeLot = 0;
+
+            int volAllLots = 0;
 
             /**
              * We Are Creating a map Of lot's types and required Sizes
@@ -387,6 +428,7 @@ public class Entrepot {
              * This Loop checkes existance Of lot
              */
             for (String nomLot : typeLotAndSize.keySet()) {
+                volAllLots += typeLotAndSize.get(nomLot);
                 if (!testerExistanceLot(nomLot, typeLotAndSize.get(nomLot))) {
                     throw new Exception("Lot Not Found");
                 }
@@ -395,16 +437,95 @@ public class Entrepot {
              * Since You Get to this Point so the Loop Ends Without throwing the exception
              * means All Lots are there
              */
-
             // Now We Will Check Existance Of Employee
+            // Reading All Free Employees
+            List<Personnel> freeEmployees = getAllFreeEmployees();
+            // removing those we can't use;
+            for (Personnel personnel : freeEmployees) {
+                if (personnel instanceof Ouvrier) {
+                    Ouvrier o = (Ouvrier) personnel;
+                    if (!typeLotAndSize.values().contains((Object) o.getSpecialite())) {
+                        freeEmployees.remove(personnel);
+                        break;
+                    }
+                } else if (personnel instanceof ChefStock) {
+                    freeEmployees.remove(personnel);
+                    break;
+                }
+            }
+            // At this point we have Only Employees that can work on this commande & r free
+            // Still need to adapt the number to less than or equal to required Steps
+            while (freeEmployees.size() > typeLotAndSize.size()) {
+                freeEmployees.remove(freeEmployees.get(freeEmployees.size() - 1));
+            }
+
+            // Set Employees To Active
+            setEmployeesToActive(freeEmployees);
+
+            // Consuming lots For Construction
+            consumeLots(typeLotAndSize);
+
+            // Creer Meuble
+            Meuble m = new Meuble(dureeConstruction, pieceMaison, freeEmployees);
+            Entrepot.meubles.add(m);
+
+            // Payer les Employees
+            payerPersonnels(freeEmployees, dureeConstruction + volAllLots);
+
+            // FreeUp Employees
+            freeUpEmployees(freeEmployees);
+
+            // Affichage de l'effet
+            showMeubleEffect(volAllLots, dureeConstruction);
 
         } catch (Exception e) {
-            System.out.println("\u001B[31m"
+            System.out.println(ANSI_RED
                     + "Commande Miss Formed It Must be <id(Int)> Meuble <nom(String)> <Piece(String)> <duree(Int)><typeLot(String)><volumeLot(Int)>"
-                    + "\u001B[0m");
+                    + ANSI_RESET);
             e.printStackTrace();
         }
 
+    }
+
+    private static void showMeubleEffect(int volAllLots, int dureeConstruction) {
+        System.out.println(ANSI_YELLOW + "This Commande Takes " + (volAllLots + dureeConstruction) + " Step to realize"
+                + ANSI_RESET);
+        System.out.println(ANSI_CYAN + "Taking needed Lot from warehouse ..." + ANSI_RESET);
+        for (int i = 0; i < volAllLots; i++) {
+            System.out.println(ANSI_YELLOW + "-Step " + (i + 1) + ANSI_RESET);
+        }
+        System.out.println(ANSI_CYAN + "Construction of Commande ..." + ANSI_RESET);
+        for (int i = 0; i < dureeConstruction; i++) {
+            System.out.println(ANSI_YELLOW + "-Step " + (i + 1) + ANSI_RESET);
+        }
+        System.out.println(ANSI_GREEN + "Commande Finished" + ANSI_RESET);
+    }
+
+    private static void showLotEffect(int volLot) {
+        System.out.println(ANSI_YELLOW + "Stocking Takes " + volLot + " Step to realize" + ANSI_RESET);
+        System.out.println(ANSI_CYAN + "adding Lot to warehouse ..." + ANSI_RESET);
+        for (int i = 0; i < volLot; i++) {
+            System.out.println(ANSI_YELLOW + "-Step " + (i + 1) + ANSI_RESET);
+        }
+        System.out.println(ANSI_GREEN + "Lot added Successfully " + ANSI_RESET);
+    }
+
+    private static void consumeLots(Map<String, Integer> typeLotAndSize) {
+        for (String name : typeLotAndSize.keySet()) {
+            int size = typeLotAndSize.get(name);
+            for (Rangee rangee : rangees) {
+                if (rangee.getAvailableVolByType(name) >= size) {
+                    rangee.consumeLot(name, size);
+                    break;
+                }
+            }
+        }
+    }
+
+    private static void setEmployeesToActive(List<Personnel> freeEmployees) {
+        for (Personnel personnel : freeEmployees) {
+            personnel.setActive(false);
+        }
     }
 
     private static boolean testerExistanceLot(String nomLot, Integer volumeRequis) {
@@ -423,6 +544,46 @@ public class Entrepot {
                 System.out.println("  ------> " + lot.toString());
             }
         }
+        System.out.println(ANSI_CYAN + "-------------- Meubles --------------" + ANSI_RESET);
+        for (Meuble meuble : Entrepot.meubles) {
+            System.out.println(ANSI_YELLOW + "  -->  " + meuble.toString() + ANSI_RESET);
+        }
+    }
+
+    public static void hrCommande() {
+        System.out.println("1- Recruter");
+        System.out.println("2- Licensier");
+        System.out.println("2- state");
+        System.out.println("4- exit");
+        int x = -1;
+        do {
+            try {
+                System.out.print(" Select : ");
+                x = Integer.parseInt(System.console().readLine());
+                switch (x) {
+                    case 1:
+                        System.out.println(ANSI_YELLOW
+                                + "Type your Commande As <id> <Ouvrier | ChefStock | ChefBrico> <Nom> <Prenom> <Specialite>"
+                                + ANSI_RESET);
+                        HRManager.recruterEmp(System.console().readLine().split(" "));
+                        break;
+                    case 2:
+                        System.out.println(ANSI_YELLOW + "Type your Commande As <Nom> <Prenom>" + ANSI_RESET);
+                        HRManager.licencierEmp(System.console().readLine().split(" "));
+                        break;
+                    case 3:
+                        HRManager.showState();
+                        break;
+
+                    default:
+                        break;
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        } while (x != 4);
     }
 
 }

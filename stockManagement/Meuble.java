@@ -1,5 +1,10 @@
 package stockManagement;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import humanResources.Personnel;
+
 /**
  * Meuble
  */
@@ -10,6 +15,7 @@ public class Meuble {
     private String nom;
     private int idConstructor;
     private int idCommande;
+    private List<Personnel> creators;
 
     public int getId() {
         return id;
@@ -55,13 +61,20 @@ public class Meuble {
         this.id = Meuble.counter++;
         this.dureeConstruction = dureeConstruction;
         this.nom = nom;
+        this.creators = new ArrayList<Personnel>();
     }
-    
 
     public Meuble(int dureeConstruction, String nom, int idCommande) {
         this.dureeConstruction = dureeConstruction;
         this.nom = nom;
         this.idCommande = idCommande;
+        this.creators = new ArrayList<Personnel>();
+    }
+
+    public Meuble(int dureeConstruction, String nom, List<Personnel> pers) {
+        this.dureeConstruction = dureeConstruction;
+        this.nom = nom;
+        this.creators = pers;
     }
 
 }
