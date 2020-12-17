@@ -1,3 +1,8 @@
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
 import humanResources.ChefBrico;
 import humanResources.ChefStock;
 import humanResources.Ouvrier;
@@ -77,7 +82,52 @@ public class Main {
 	}
 
 	private static void traitementParFichier() {
+		System.out.print(ANSI_PURPLE + "Please Enter The absolute path of your file + fileName : " + ANSI_GREEN);
+		String path = System.console().readLine();
+		List<String> commandes = new ArrayList<>();
+		try {
+			File file = new File(path);
+			Scanner reader = new Scanner(file);
+			while (reader.hasNextLine()) {
+				commandes.add(reader.nextLine());
+			}
+			reader.close();
+		} catch (Exception e) {
+			System.out.println(ANSI_RED + "File Not Found." + ANSI_RESET);
+			e.printStackTrace();
+		}
+		for (String commande : commandes) {
+			traiterCommandeFromFile(commande);
+		}
+	}
 
+	private static void traiterCommandeFromFile(String commande) {
+		System.out.println(ANSI_YELLOW + "Current Commande Is " + commande + ANSI_RESET);
+		try {
+			String[] commandeArray = commande.split(" ");
+			Integer.parseInt(commandeArray[0]);
+			switch (commandeArray[1].toLowerCase()) {
+				case "lot":
+					Entrepot.traiterNouveauLot(commandeArray);
+					break;
+				case "state":
+					Entrepot.showState();
+					break;
+				case "meuble":
+					Entrepot.ConstructionNouvelleCommande(commandeArray);
+					break;
+				case "hr":
+					Entrepot.hrCommande();
+					break;
+				case "rien":
+					break;
+				default:
+					System.out.println(ANSI_RED + " Commande Introuvable " + ANSI_RESET);
+					break;
+			}
+		} catch (Exception e) {
+			System.out.println(ANSI_RED + " Commande Must Start with an ID " + ANSI_RESET);
+		}
 	}
 
 	private static void traitementParCommande() {
