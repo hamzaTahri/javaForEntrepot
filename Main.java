@@ -1,5 +1,7 @@
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 
@@ -137,30 +139,33 @@ public class Main {
 					.println(ANSI_GREEN + "Choices You Have <lot> | <state> | <meuble> | <hr> | <rien> " + ANSI_RESET);
 			System.out.print("Tappez la Commande : ");
 			String commande = System.console().readLine();
-			String[] commandeStrings = commande.split(" ");
-			try {
-				Integer.parseInt(commandeStrings[0]);
-				switch (commandeStrings[1].toLowerCase()) {
-					case "lot":
-						Entrepot.traiterNouveauLot(commandeStrings);
-						break;
-					case "state":
-						Entrepot.showState();
-						break;
-					case "meuble":
-						Entrepot.ConstructionNouvelleCommande(commandeStrings);
-						break;
-					case "hr":
-						Entrepot.hrCommande();
-						break;
-					case "rien":
-						break;
-					default:
-						System.out.println(ANSI_RED + " Commande Introuvable " + ANSI_RESET);
-						break;
+			List<String> allCommandes  = Arrays.asList(commande.split("|"));
+			for (String commandeX : allCommandes) {
+				String[] commandeStrings = commandeX.split(" ");
+				try {
+					Integer.parseInt(commandeStrings[0]);
+					switch (commandeStrings[1].toLowerCase()) {
+						case "lot":
+							Entrepot.traiterNouveauLot(commandeStrings);
+							break;
+						case "state":
+							Entrepot.showState();
+							break;
+						case "meuble":
+							Entrepot.ConstructionNouvelleCommande(commandeStrings);
+							break;
+						case "hr":
+							Entrepot.hrCommande();
+							break;
+						case "rien":
+							break;
+						default:
+							System.out.println(ANSI_RED + " Commande Introuvable " + ANSI_RESET);
+							break;
+					}
+				} catch (Exception e) {
+					System.out.println(ANSI_RED + " Commande Must Start with an ID " + ANSI_RESET);
 				}
-			} catch (Exception e) {
-				System.out.println(ANSI_RED + " Commande Must Start with an ID " + ANSI_RESET);
 			}
 
 		}
