@@ -57,27 +57,31 @@ public class Main {
 		boolean choixValide = false;
 
 		do {
-			System.out.println(ANSI_GREEN + "1-Mode Console" + ANSI_RESET);
-			System.out.println(ANSI_PURPLE + "2-Mode File" + ANSI_RESET);
-			System.out.println(ANSI_RED + "3-Exit" + ANSI_RESET);
-			System.out.print("Choisir Un mode (1,3) : ");
-			int choix = Integer.parseInt(System.console().readLine());
-			switch (choix) {
-				case 1:
-					traitementParCommande();
-					choixValide = true;
-					break;
-				case 2:
-					System.out.println("Votre Choix est File");
-					traitementParFichier();
-					choixValide = true;
-					break;
-				case 3:
-					System.out.println("Bye Bye");
-					return;
-				default:
-					System.out.println(ANSI_RED + "choix Incorrect" + ANSI_RESET);
-					break;
+			try {
+				System.out.println(ANSI_GREEN + "1-Mode Console" + ANSI_RESET);
+				System.out.println(ANSI_PURPLE + "2-Mode File" + ANSI_RESET);
+				System.out.println(ANSI_RED + "3-Exit" + ANSI_RESET);
+				System.out.print("Choisir Un mode (1,3) : ");
+				int choix = Integer.parseInt(System.console().readLine());
+				switch (choix) {
+					case 1:
+						traitementParCommande();
+						choixValide = true;
+						break;
+					case 2:
+						System.out.println("Votre Choix est File");
+						traitementParFichier();
+						choixValide = true;
+						break;
+					case 3:
+						System.out.println("Bye Bye");
+						return;
+					default:
+						System.out.println(ANSI_RED + "choix Incorrect" + ANSI_RESET);
+						break;
+				}
+			} catch (Exception e) {
+				System.out.println(ANSI_RED + "choix Incorrect" + ANSI_RESET);
 			}
 		} while (!choixValide);
 
@@ -139,7 +143,7 @@ public class Main {
 					.println(ANSI_GREEN + "Choices You Have <lot> | <state> | <meuble> | <hr> | <rien> " + ANSI_RESET);
 			System.out.print("Tappez la Commande : ");
 			String commande = System.console().readLine();
-			List<String> allCommandes  = Arrays.asList(commande.split("|"));
+			List<String> allCommandes = Arrays.asList(commande.split("|"));
 			for (String commandeX : allCommandes) {
 				String[] commandeStrings = commandeX.split(" ");
 				try {
